@@ -1,0 +1,63 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.box {
+    border: 4px solid #000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 10px; /* Odsazení okrajů */
+    border-radius: 10px; /* Zaoblení okrajů */
+}
+
+.top-box {
+    height: 150px;
+    background-color: #2796f5;
+    color: #ffffff;
+    text-align: center;
+    line-height: 150px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Textový stín */
+    transition: all 0.3s ease; /* Plynulý přechod */
+    border-radius: 10px; /* Zaoblení všech okrajů */
+}
+
+.left-box {
+    height: calc(100vh - 150px);
+    width: 280px;
+    float: left;
+    background-color: rgba(100, 195, 255, 0.82);
+    transition: all 0.3s ease; /* Plynulý přechod */
+    border-radius: 10px; /* Zaoblení všech okrajů */
+    text-align: center;
+
+}
+
+.main-box {
+    height: calc(100vh - 150px);
+    margin-left: 300px;
+    background-color: rgba(184, 226, 248, 0.97);
+    transition: all 0.3s ease; /* Plynulý přechod */
+    border-radius: 10px; /* Zaoblení všech okrajů */
+    margin-top: 20px; /* Odsazení o stejnou výšku jako top-box */
+}
+
+/* Plynulý přechod při najetí myši */
+.box:hover, .top-box:hover, .left-box:hover, .main-box:hover {
+    transform: scale(1.01); /* Zvětšení při najetí myši */
+}
+
+/* Responsivní design pro menší obrazovky */
+@media (max-width: 768px) {
+    .left-box {
+        width: 100%;
+        float: none;
+        margin-bottom: 10px;
+        border-radius: 10px; /* Zaoblení okrajů */
+    }
+
+    .main-box {
+        margin-left: 0;
+        border-radius: 10px; /* Zaoblení okrajů */
+    }
+}

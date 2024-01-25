@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Úvodní Stránka</title>
+</head>
+<body>
+    <h1>Vítejte na úvodní stránce obchodu!</h1>
+
+    {% for produkt in produkty %}
+        <h2>{{ produkt.nazev }}</h2>
+        <p>{{ produkt.popis }}</p>
+        <p>Cena: {{ produkt.cena }}</p>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,41 @@
+{% load static %}
+
+<html>
+<head>
+    <title>Mobily pro vás</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/shop.css' %}">
+</head>
+<body>
+
+<div class="box top-box">
+    <h1>Vítejte v našem obchodě!</h1>
+</div>
+
+<div class="box left-box">
+    {% for kategorie in kategorie %}
+        <div class="kategorie-box">
+            <h2>{{ kategorie.nazev }}</h2>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="box main-box">
+    <h2>Novinky</h2>
+    <ul>
+        {% for novinka in novinky %}
+            <li>{{ novinka.nazev }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Produkty</h2>
+    <ul>
+        {% for produkt in produkty %}
+            <li>{{ produkt.nazev }} - {{ produkt.cena }} Kč</li>
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>
