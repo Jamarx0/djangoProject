@@ -1,27 +1,20 @@
-{% load static %}
+{% extends 'shop/base.html' %}
 
-<html>
-<head>
-    <title>Mobily pro vás</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/shop.css' %}">
-</head>
-<body>
+{% block title %}Mobil pro vás  {% endblock %}
 
-<div class="box top-box">
-    <h1>Vítejte v našem obchodě!</h1>
-</div>
-
-<div class="box left-box">
+{% block left_content %}
+    <!-- Váš obsah pro levý box -->
     {% for kategorie in kategorie %}
         <div class="kategorie-box">
-            <h2>{{ kategorie.nazev }}</h2>
+            <a href="{% url 'category_detail' kategorie.id_kategorie %}" class="button">
+                <h2>{{ kategorie.nazev }}</h2>
+            </a>
         </div>
     {% endfor %}
-</div>
+{% endblock %}
 
-<div class="box main-box">
+{% block main_content %}
+    <!-- Váš obsah pro hlavní box -->
     <h2>Novinky</h2>
     <ul>
         {% for novinka in novinky %}
@@ -35,7 +28,4 @@
             <li>{{ produkt.nazev }} - {{ produkt.cena }} Kč</li>
         {% endfor %}
     </ul>
-</div>
-
-</body>
-</html>
+{% endblock %}
