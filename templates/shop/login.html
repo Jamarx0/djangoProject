@@ -1,0 +1,26 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Přihlášení{% endblock %}
+
+{% block left_content %}
+    <!-- Váš obsah pro levý box -->
+    {% for kategorie in kategorie %}
+        <div class="kategorie-box">
+            <!--suppress HtmlUnknownTarget -->
+            <a href="{% url 'product_detail' kategorie.id_kategorie %}" class="button">
+                <h2>{{ kategorie.nazev }}</h2>
+            </a>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block main_content %}
+    <div class="registration-form">
+        <h2>Přihlášení</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Přihlásit se</button>
+        </form>
+    </div>
+{% endblock %}

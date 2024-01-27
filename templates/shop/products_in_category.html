@@ -1,0 +1,28 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Products in Category: {{ aktualni_kategorie.nazev }}{% endblock %}
+
+{% block left_content %}
+    <!-- Váš obsah pro levý box -->
+    {# Tento blok obsahuje kategorie, můžete ho zakomentovat nebo smazat podle potřeby. #}
+
+{% endblock %}
+
+{% block main_content %}
+    <div class="product-detail">
+        <h2>Produkty v kategorii: {{ aktualni_kategorie.nazev }}</h2>
+        <ul class="product-list">
+            {% for produkt in produkty %}
+
+                    <div class="product-info" onclick="window.location='{% url 'product_detail' pk=produkt.id_produktu %}'">
+                        <h3>{{ produkt.nazev }}</h3>
+                        {% if produkt.obrazky_produktu.all %}
+                            <img src="{{ produkt.obrazky_produktu.0.nazev_obrazku }}" alt="{{ produkt.nazev }}" style="max-width: 100px;">
+                        {% endif %}
+                        <p>Cena: {{ produkt.cena }} Kč</p>
+                    </div>
+
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

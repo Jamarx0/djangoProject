@@ -1,9 +1,9 @@
-from django.shortcuts import render
 from django.views.generic import View
+from .models import Kosik, Kategorie, Produkt, Novinka, ObrazekProduktu
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import AuthenticationForm
 from .forms import RegistrationForm
-from django.contrib.auth import login
-from django.shortcuts import redirect
-from .models import Kosik, Kategorie, Produkt, Novinka
 
 
 def zobraz_kosik(request):
@@ -25,36 +25,78 @@ def zobraz_kosik(request):
     return render(request, 'shop/kosik.html', {'obsah_kosiku': obsah_kosiku})
 
 
-def uvodni_stranka(request):
-    produkty = Produkt.objects.all()
-    return render(request, 'shop/uvodni_stranka.html', {'produkty': produkty})
-
-
 def pokusovec(request):
     kategorie = Kategorie.objects.all()
-    produkty = Produkt.objects.all()[:10]  # Získat prvních 10 produktů
-    novinky = Novinka.objects.all()[:5]  # Získat prvních 5 novinek
+    produkty = Produkt.objects.all()[:10]
+    novinky = Novinka.objects.all()[:5]
 
     return render(request, 'shop/index.html', {'produkty': produkty, 'novinky': novinky, 'kategorie': kategorie})
 
 
-def category_detail(request, pk):
-    kategorie = Kategorie.objects.get(pk=pk)
-    # Zde můžete přidat kód pro zobrazení detailu kategorie
-    return render(request, 'shop/category_detail.html', {'kategorie': kategorie})
-
-
 class RegistrationView(View):
-    template_name = 'registration.html'  # Vytvořte šablonu pro registraci
+    template_name = 'shop/registration.html'
 
     def get(self, request, *args, **kwargs):
         form = RegistrationForm()
-        return render(request, self.template_name, {'form': form})
+        kategorie = Kategorie.objects.all()
+        return render(request, self.template_name, {'form': form, 'kategorie': kategorie})
 
     def post(self, request, *args, **kwargs):
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('uvodni_stranka')  # Přesměrujte kamkoliv po registraci
-        return render(request, self.template_name, {'form': form})
+            form.save()
+            return redirect('pokusovec')
+
+        kategorie = Kategorie.objects.all()
+        return render(request, self.template_name, {'form': form, 'kategorie': kategorie})
+
+
+# views.py
+class LoginView(View):
+    template_name = 'shop/login.html'
+
+    def get(self, request, *args, **kwargs):
+        form = AuthenticationForm()
+        kategorie = Kategorie.objects.all()
+        return render(request, self.template_name, {'form': form, 'kategorie': kategorie})
+
+    def post(self, request, *args, **kwargs):
+        form = AuthenticationForm(request, data=request.POST)
+        kategorie = Kategorie.objects.all()
+
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect('pokusovec')
+
+        # Přidáno: Pokud přihlášení selže, zobrazí se chyba
+        return render(request, self.template_name, {'form': form, 'kategorie': kategorie, 'error_message': 'Invalid login credentials'})
+
+
+
+def produkt_detail(request, pk):
+    produkt = get_object_or_404(Produkt, pk=pk)
+    obrazky_produktu = ObrazekProduktu.objects.filter(id_produktu=produkt)
+
+    return render(request, 'shop/product_detail.html',
+                  {'produkt': produkt, 'obrazky_produktu': obrazky_produktu})
+
+def products_in_category(request, category_id):
+    kategorie = get_object_or_404(Kategorie, id_kategorie=category_id)
+    produkty = Produkt.objects.filter(id_kategorie=kategorie)
+    obrazky_produktu = {}
+
+    for produkt in produkty:
+        obrazky_produktu[produkt.id_produktu] = ObrazekProduktu.objects.filter(id_produktu=produkt)
+
+    return render(request, 'shop/products_in_category.html', {
+        'aktualni_kategorie': kategorie,
+        'produkty': produkty,
+        'obrazky_produktu': obrazky_produktu,
+    })
+
+

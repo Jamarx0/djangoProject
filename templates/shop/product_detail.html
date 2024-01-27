@@ -1,0 +1,33 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ produkt.nazev }}{% endblock %}
+
+{% block left_content %}
+    <!-- Váš obsah pro levý box -->
+    {% for kategorie in kategorie %}
+        <div class="kategorie-box">
+            <!--suppress HtmlUnknownTarget -->
+            <a href="{% url 'products_in_category' kategorie.id_kategorie %}" class="button">
+                <h2>{{ kategorie.nazev }}</h2>
+            </a>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block main_content %}
+    <div class="product-detail">
+        <h2>{{ produkt.nazev }}</h2>
+        {% if obrazky_produktu %}
+            <img src="{{ obrazky_produktu.0.nazev_obrazku }}" alt="{{ produkt.nazev }}">
+        {% endif %}
+        <p>Cena: {{ produkt.cena }} Kč</p>
+        <!-- Zde můžete přidat další informace o produktu -->
+    </div>
+
+    <h2>Produkty v kategorii: {{ produkt.kategorie.nazev }}</h2>
+    <ul>
+        {% for produkt_v_kategorii in produkt.kategorie.produkt_set.all %}
+            <li>{{ produkt_v_kategorii.nazev }} - {{ produkt_v_kategorii.cena }} Kč</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
