@@ -1,11 +1,11 @@
 from django.contrib.auth.views import LoginView
 from django.urls import path
 from . import views
-from .views import pokusovec, RegistrationView, KosikView, pridat_do_kosiku
+from .views import pokusovec, RegistrationView, ZobrazKosikView, KosikView
 
 urlpatterns = [
-    path('kosik/', KosikView.as_view(), name='kosik'),
-    path('pridat_do_kosiku/<int:produkt_id>/', pridat_do_kosiku, name='pridat_do_kosiku'),
+    path('zobraz_kosik/', ZobrazKosikView.as_view(), name='zobraz_kosik'),
+    path('pridat_do_kosiku/<int:produkt_id>/', KosikView.as_view(), name='pridat_do_kosiku'),
     path("", pokusovec, name="pokusovec"),
     path('category/<int:category_id>/', views.products_in_category, name='products_in_category'),
     path('product/<int:pk>/', views.produkt_detail, name='product_detail'),

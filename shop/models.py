@@ -2,26 +2,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db import models
 
-
-class Zakaznik(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    jmeno = models.CharField(max_length=255, null=False)
-    prijmeni = models.CharField(max_length=255, null=False)
-    email = models.CharField(max_length=255, null=False)
-    telefonni_cislo = models.CharField(max_length=255, null=False)
-
-    def __str__(self):
-        return f"{self.jmeno} {self.prijmeni}"
-
-
 class Kosik(models.Model):
     id_kosiku = models.AutoField(primary_key=True)
-    id_zakaznika = models.ForeignKey(Zakaznik, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     obsah_kosiku = models.ManyToManyField('Produkt', through='PolozkaKosiku')
 
     def vytvor_objednavku(self):
         nova_objednavka = Objednavka.objects.create(
-            id_zakaznika=self.id_zakaznika,
+            user=self.user,
             datum_objednavky=timezone.now(),
             stav="Vytvorena"
         )
@@ -39,8 +27,15 @@ class Kosik(models.Model):
 
         self.delete()
 
+    def add_to_cart(self, produkt):
+        # Metoda pro přidání produktu do košíku
+        polozka, created = PolozkaKosiku.objects.get_or_create(kosik=self, produkt=produkt)
+        if not created:
+            polozka.mnozstvi += 1
+            polozka.save()
+
     def __str__(self):
-        return f"Kosik {self.id_kosiku} od zákazníka {self.id_zakaznika}"
+        return f"Kosik {self.id_kosiku} od zákazníka {self.user}"
 
 
 class PolozkaKosiku(models.Model):
@@ -75,12 +70,12 @@ class Kategorie(models.Model):
 
 class Objednavka(models.Model):
     id_objednavky = models.AutoField(primary_key=True)
-    id_zakaznika = models.ForeignKey(Zakaznik, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     datum_objednavky = models.DateTimeField(auto_now_add=True)
     stav = models.CharField(max_length=255, null=False)
 
     def __str__(self):
-        return f"Objednávka #{self.id_objednavky} od zákazníka {self.id_zakaznika} - Stav: {self.stav}"
+        return f"Objednávka #{self.id_objednavky} od zákazníka {self.user} - Stav: {self.stav}"
 
 
 class Novinka(models.Model):
@@ -104,21 +99,21 @@ class ProduktObjednavka(models.Model):
 
 class Registrace(models.Model):
     id_registrace = models.AutoField(primary_key=True)
-    id_zakaznika = models.ForeignKey(Zakaznik, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     heslo = models.CharField(max_length=255, null=False)
 
     class Meta:
         indexes = [
-            models.Index(fields=['id_zakaznika'])
+            models.Index(fields=['user'])
         ]
 
     def __str__(self):
-        return f"Registrace #{self.id_registrace} pro zákazníka {self.id_zakaznika}"
+        return f"Registrace #{self.id_registrace} pro zákazníka {self.user}"
 
 
 class Recenze(models.Model):
     id_recenze = models.AutoField(primary_key=True)
-    id_zakaznika = models.ForeignKey(Zakaznik, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     id_produktu = models.ForeignKey(Produkt, on_delete=models.CASCADE)  # Změňte podle skutečného modelu produktu
     text = models.TextField(null=True)
     datum_recenze = models.DateTimeField(null=False)
@@ -126,11 +121,11 @@ class Recenze(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['id_produktu']),
-            models.Index(fields=['id_zakaznika'])
+            models.Index(fields=['user'])
         ]
 
     def __str__(self):
-        return f"Recenze #{self.id_recenze} pro produkt {self.id_produktu} od zákazníka {self.id_zakaznika}"
+        return f"Recenze #{self.id_recenze} pro produkt {self.id_produktu} od zákazníka {self.user}"
 
 
 class Platba(models.Model):

@@ -1,3 +1,5 @@
+<!-- base.html -->
+
 {% load static %}
 
 <html lang="en">
@@ -27,15 +29,19 @@
         <a href="{% url 'login' %}" class="button">Přihlásit se</a>
         <!--suppress HtmlUnknownTarget -->
         <a href="{% url 'registration' %}" class="button">Registrovat</a>
-        <a href="{% url 'kosik' %}" class="button kosik-button">Košík</a>
+        <a href="{% url 'zobraz_kosik' %}" class="button kosik-button">Košík</a>
     </div>
 </div>
 
 <div class="box left-box">
     {% block left_content %}
-    <!-- Váš obsah pro levý box -->
+        <!-- Váš obsah pro levý box -->
+        <ul>
+            {% for kategorie in kategorie_list %}
+                <li>{{ kategorie.nazev }}</li>
+            {% endfor %}
+        </ul>
     {% endblock %}
-
 </div>
 
 <div class="box main-box">

@@ -4,14 +4,11 @@
 
 {% block left_content %}
     <!-- Váš obsah pro levý box -->
-    {% for kategorie in kategorie %}
-        <div class="kategorie-box">
-            <!--suppress HtmlUnknownTarget -->
-            <a href="{% url 'product_detail' kategorie.id_kategorie %}" class="button">
-                <h2>{{ kategorie.nazev }}</h2>
-            </a>
-        </div>
-    {% endfor %}
+    <ul>
+        {% for kategorie in kategorie %}
+            <li>{{ kategorie.nazev }}</li>
+        {% endfor %}
+    </ul>
 {% endblock %}
 
 {% block main_content %}
