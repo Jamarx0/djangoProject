@@ -144,6 +144,30 @@ body {
     padding: 10px;
     cursor: pointer;
     transition: box-shadow 0.3s;
+
+}
+.product-detail {
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.product-column{
+    box-sizing: border-box;
+    width: calc(50% - 20px); /* Pro dvě poloviny v řádku, s mírným odstupem */
+    margin: 10px;
+    border: none;
+    box-shadow: none;
+}
+.product-popis {
+    box-sizing: border-box;
+    width: calc(50% - 20px); /* Pro dvě poloviny v řádku, s mírným odstupem */
+    margin: 10px;
+    border: none;
+    box-shadow: none;
+    /* Případně zkontrolujte, zda není nastavena maximální výška nebo šířka */
+    max-width: none; /* případně specifikujte hodnotu, která umožní zobrazit celý obsah */
+    height: auto; /* případně specifikujte hodnotu, která umožní zobrazit celý obsah */
 }
 
 .product-info:hover {

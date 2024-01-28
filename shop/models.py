@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Zakaznik(models.Model):
-    id_zakaznika = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     jmeno = models.CharField(max_length=255, null=False)
     prijmeni = models.CharField(max_length=255, null=False)
     email = models.CharField(max_length=255, null=False)

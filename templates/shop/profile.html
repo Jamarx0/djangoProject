@@ -1,0 +1,11 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Uživatelský profil{% endblock %}
+
+{% block main_content %}
+    <h2>Váš uživatelský profil</h2>
+    <p>Jméno: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <!-- Další informace o uživateli můžete zobrazit zde -->
+    <p>Další informace: {{ other_data }}</p>
+{% endblock %}
