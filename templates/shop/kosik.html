@@ -2,17 +2,7 @@
 
 {% block title %}Košík{% endblock %}
 
-{% block left_content %}
-    <!-- Váš obsah pro levý box -->
-    {% for kategorie in kategorie %}
-        <div class="kategorie-box">
-            <!--suppress HtmlUnknownTarget -->
-            <a href="{% url 'products_in_category' kategorie.id_kategorie %}" class="button">
-                <h2>{{ kategorie.nazev }}</h2>
-            </a>
-        </div>
-    {% endfor %}
-{% endblock %}
+
 
 {% block main_content %}
     <h1>Obsah košíku</h1>

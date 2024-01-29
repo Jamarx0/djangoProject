@@ -36,11 +36,13 @@
 <div class="box left-box">
     {% block left_content %}
         <!-- Váš obsah pro levý box -->
-        <ul>
-            {% for kategorie in kategorie_list %}
-                <li>{{ kategorie.nazev }}</li>
-            {% endfor %}
-        </ul>
+        {% for kategorie in kategorie_list %}
+            <div class="kategorie-box">
+                <a href="{% url 'products_in_category' kategorie.id_kategorie %}" class="button">
+                    <h2>{{ kategorie.nazev }}</h2>
+                </a>
+            </div>
+        {% endfor %}
     {% endblock %}
 </div>
 
