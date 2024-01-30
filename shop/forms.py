@@ -18,3 +18,6 @@ class RegistrationForm(UserCreationForm):
     def render_submit_button(self):
         # Tato funkce vytvoří HTML kód pro tlačítko Registrovat
         return str(self['submit_button'])
+
+class SearchForm(forms.Form):
+    query = forms.CharField(max_length=100, required=False)

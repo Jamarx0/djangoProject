@@ -3,8 +3,9 @@ from .models import Kosik, Kategorie, Produkt, Novinka, ObrazekProduktu, Polozka
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import RegistrationForm
+from .forms import RegistrationForm, SearchForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 class KosikView(LoginRequiredMixin, View):
     template_name = 'shop/kosik.html'
@@ -37,6 +38,7 @@ class RegistrationView(View):
         kategorie = Kategorie.objects.all()
         return render(request, self.template_name, {'form': form, 'kategorie': kategorie})
 
+
 class LoginView(View):
     template_name = 'shop/login.html'
 
@@ -60,7 +62,6 @@ class LoginView(View):
 
         return render(request, self.template_name,
                       {'form': form, 'kategorie': kategorie, 'error_message': 'Invalid login credentials'})
-
 
 
 def produkt_detail(request, pk):
@@ -109,3 +110,14 @@ class ZobrazKosikView(View):
         kosik, created = Kosik.objects.get_or_create(user=request.user)
         obsah_kosiku = kosik.obsah_kosiku.all()
         return render(request, self.template_name, {'obsah_kosiku': obsah_kosiku})
+
+
+def search(request):
+    form = SearchForm(request.GET)
+    results = []
+
+    if form.is_valid():
+        query = form.cleaned_data['query']
+        results = Produkt.objects.filter(nazev__icontains=query)
+
+    return render(request, 'shop/search_results.html', {'form': form, 'results': results})

@@ -36,10 +36,9 @@ body {
 
 .top-box {
     display: flex;
+    justify-content: space-between; /* upraveno pro rovnoměrné rozložení */
     align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    height: 120px;
+    padding: 10px;
     background-color: #3498db;
     color: #ffffff;
     text-align: center;
@@ -47,10 +46,17 @@ body {
     transition: all 0.3s ease;
     border-radius: 15px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    height: 100px; /* nová výška top boxu */
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
 }
 
 .logo-container img {
-    max-height: 200px;
+    max-height: 200px; /* upraveno pro větší logo */
+    margin: 0 auto; /* upraveno pro umístění loga do středu */
 }
 
 .search-container {
@@ -59,15 +65,14 @@ body {
 }
 
 .search-container input {
-    width: 70%;
+    width: 100%;
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    margin-right: 10px;
 }
 
 .search-container button {
-    width: 20%;
-    margin-left: 10px;
     padding: 10px;
     background-color: #3498db;
     color: white;
@@ -92,6 +97,7 @@ body {
 .login-container .button:hover {
     background-color: #2980b9;
 }
+
 
 .left-box {
     display: flex;

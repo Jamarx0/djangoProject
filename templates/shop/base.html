@@ -13,16 +13,19 @@
 <body>
 
 <div class="box top-box">
+    <div class="search-container">
+        <form method="get" action="{% url 'search' %}">
+            {% csrf_token %}
+            <label>
+                <input type="text" name="query" placeholder="Vyhledat...">
+            </label>
+            <button type="submit" class="button">Hledat</button>
+        </form>
+    </div>
     <div class="logo-container">
         <a href="{% url 'pokusovec' %}">
             <img src="{% static 'images/logo.png' %}" alt="Logo firmy">
         </a>
-    </div>
-    <div class="search-container">
-        <label>
-            <input type="text" placeholder="Vyhledat...">
-        </label>
-        <button type="submit" class="button">Hledat</button>
     </div>
     <div class="login-container">
         <!--suppress HtmlUnknownTarget -->
