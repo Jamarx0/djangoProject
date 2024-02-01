@@ -51,6 +51,7 @@ class Produkt(models.Model):
     cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     id_kategorie = models.ForeignKey('Kategorie', on_delete=models.SET_NULL, null=True)
     skladove_zasoby = models.IntegerField(null=True)
+    nazev_obrazku = models.CharField(max_length=255, null=False)
     datum_vytvoreni = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -143,19 +144,6 @@ class Platba(models.Model):
     def __str__(self):
         return f"Platba #{self.id_platby} pro objednávku {self.id_objednavky} - {self.suma} Kč"
 
-
-class ObrazekProduktu(models.Model):
-    id_obrazku = models.AutoField(primary_key=True)
-    id_produktu = models.ForeignKey(Produkt, on_delete=models.CASCADE)
-    nazev_obrazku = models.CharField(max_length=255, null=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['id_produktu'])
-        ]
-
-    def __str__(self):
-        return f"Obrazek #{self.id_obrazku} pro produkt {self.id_produktu}"
 
 
 class HistorieObjednavek(models.Model):
