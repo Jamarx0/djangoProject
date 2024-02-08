@@ -1,0 +1,59 @@
+<!-- base.html -->
+
+{% load static %}
+
+<html lang="en">
+<head>
+    <title>{% block title %}Název stránky{% endblock %}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <!--suppress HtmlUnknownTarget -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/shop.css' %}">
+</head>
+<body>
+
+<div class="box top-box">
+    <div class="search-container">
+        <form method="get" action="{% url 'search' %}">
+            {% csrf_token %}
+            <label>
+                <input type="text" name="query" placeholder="Vyhledat...">
+            </label>
+            <button type="submit" class="button">Hledat</button>
+        </form>
+    </div>
+    <div class="logo-container">
+        <a href="{% url 'pokusovec' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Logo firmy">
+        </a>
+    </div>
+    <div class="login-container">
+        <!--suppress HtmlUnknownTarget -->
+        <a href="{% url 'login' %}" class="button">Přihlásit se</a>
+        <!--suppress HtmlUnknownTarget -->
+        <a href="{% url 'registration' %}" class="button">Registrovat</a>
+        <a href="{% url 'kosik' %}" class="button kosik-button">Košík</a>
+    </div>
+</div>
+
+<div class="box left-box">
+    {% block left_content %}
+        <!-- Váš obsah pro levý box -->
+        {% for kategorie in kategorie_list %}
+            <div class="kategorie-box">
+                <a href="{% url 'products_in_category' kategorie.id_kategorie %}" class="button">
+                    <h2>{{ kategorie.nazev }}</h2>
+                </a>
+            </div>
+        {% endfor %}
+    {% endblock %}
+</div>
+
+<div class="box main-box">
+    {% block main_content %}
+        <!-- Obsah pro hlavní box -->
+    {% endblock %}
+</div>
+
+</body>
+</html>

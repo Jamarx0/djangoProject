@@ -1,0 +1,22 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Products in Category: {{ aktualni_kategorie.nazev }}{% endblock %}
+
+{% block main_content %}
+    <div class="product-detail">
+        <h2>Produkty v kategorii: {{ aktualni_kategorie.nazev }}</h2>
+        <ul class="product-list">
+            {% for produkt in produkty %}
+                <li class="product-item">
+                    <div class="product-info" onclick="window.location='{% url 'product_detail' pk=produkt.id_produktu %}'">
+                        {% if produkt.nazev_obrazku %}
+                            <img class="product-image" src="{{ produkt.nazev_obrazku }}" alt="{{ produkt.nazev }}">
+                        {% endif %}
+                        <h3 class="product-name">{{ produkt.nazev }}</h3>
+                        <p class="product-price">Cena: {{ produkt.cena }} Kč</p>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

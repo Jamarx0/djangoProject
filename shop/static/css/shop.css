@@ -1,3 +1,5 @@
+/* styles.css */
+
 body {
     margin: 0;
     padding: 0;
@@ -10,6 +12,7 @@ body {
     margin: 10px;
     border-radius: 15px;
 }
+
 .button {
     display: flex;
     align-items: center;
@@ -36,10 +39,9 @@ body {
 
 .top-box {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
-    height: 120px;
+    align-items: center;
+    padding: 10px;
     background-color: #3498db;
     color: #ffffff;
     text-align: center;
@@ -47,10 +49,17 @@ body {
     transition: all 0.3s ease;
     border-radius: 15px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    height: 100px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
 }
 
 .logo-container img {
     max-height: 200px;
+    margin: 0 auto;
 }
 
 .search-container {
@@ -59,15 +68,14 @@ body {
 }
 
 .search-container input {
-    width: 70%;
+    width: 100%;
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    margin-right: 10px;
 }
 
 .search-container button {
-    width: 20%;
-    margin-left: 10px;
     padding: 10px;
     background-color: #3498db;
     color: white;
@@ -106,7 +114,7 @@ body {
     border-radius: 15px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     text-align: center;
-    overflow: hidden; /* Přidáno, aby zabránilo přesahu obsahu mimo left-box */
+    overflow: hidden;
 }
 
 .kategorie-box {
@@ -126,14 +134,89 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.product-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.product-item {
+    width: 380px;
+    margin: 10px;
+    box-sizing: border-box;
+    height: 380px; /* Nastavena výška boxu */
+}
+
+.product-info {
+    border: 1px solid #ddd;
+    padding: 10px;
+    cursor: pointer;
+    transition: box-shadow 0.3s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.product-image {
+    max-width: 300px; /* Maximální šířka obrázku */
+    max-height: 300px; /* Maximální výška obrázku */
+    margin-bottom: 10px; /* Odstup mezi obrázkem a cenou */
+}
+
+.product-name {
+    font-size: 18px; /* Velikost písma pro název */
+    margin-bottom: 5px; /* Odstup mezi názvem a cenou */
+}
+
+.product-price {
+    font-size: 16px; /* Velikost písma pro cenu */
+}
+
+
+
+
+.product-info:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-detail {
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.product-column {
+    box-sizing: border-box;
+    width: calc(50% - 20px);
+    margin: 10px;
+    border: none;
+    box-shadow: none;
+}
+
+.product-popis {
+    box-sizing: border-box;
+    width: calc(50% - 20px);
+    margin: 10px;
+    border: none;
+    box-shadow: none;
+}
+
 .main-box {
-    height: calc(100vh - 130px); /* 10px further from top-box */
+    height: auto;
     margin-left: 260px;
     margin-top: 20px;
     background-color: #ecf0f1;
     transition: all 0.3s ease;
     border-radius: 15px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.registration-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 @media (max-width: 768px) {

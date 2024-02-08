@@ -1,0 +1,25 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Mobil pro vás{% endblock %}
+
+
+
+{% block main_content %}
+    <section class="news-section">
+        <h2>Novinky</h2>
+        <ul>
+            {% for novinka in novinky %}
+                <li>{{ novinka.nazev }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="products-section">
+        <h2>Produkty</h2>
+        <ul>
+            {% for produkt in produkty %}
+                <li>{{ produkt.nazev }} - {{ produkt.cena }} Kč</li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endblock %}

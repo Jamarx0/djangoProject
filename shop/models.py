@@ -1,27 +1,16 @@
+from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.db import models
-
-
-class Zakaznik(models.Model):
-    id_zakaznika = models.AutoField(primary_key=True)
-    jmeno = models.CharField(max_length=255, null=False)
-    prijmeni = models.CharField(max_length=255, null=False)
-    email = models.CharField(max_length=255, null=False)
-    telefonni_cislo = models.CharField(max_length=255, null=False)
-
-    def __str__(self):
-        return f"{self.jmeno} {self.prijmeni}"
 
 
 class Kosik(models.Model):
     id_kosiku = models.AutoField(primary_key=True)
-    id_zakaznika = models.ForeignKey(Zakaznik, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     obsah_kosiku = models.ManyToManyField('Produkt', through='PolozkaKosiku')
 
     def vytvor_objednavku(self):
         nova_objednavka = Objednavka.objects.create(
-            id_zakaznika=self.id_zakaznika,
+            user=self.user,
             datum_objednavky=timezone.now(),
             stav="Vytvorena"
         )
@@ -39,14 +28,21 @@ class Kosik(models.Model):
 
         self.delete()
 
+    def add_to_cart(self, produkt):
+        # Metoda pro přidání produktu do košíku
+        polozka, created = PolozkaKosiku.objects.get_or_create(kosik=self, produkt=produkt)
+        if not created:
+            polozka.mnozstvi += 1
+            polozka.save()
+
     def __str__(self):
-        return f"Kosik {self.id_kosiku} od zákazníka {self.id_zakaznika}"
+        return f"Kosik {self.id_kosiku} od zákazníka {self.user}"
 
-
-class PolozkaKosiku(models.Model):
-    kosik = models.ForeignKey(Kosik, on_delete=models.CASCADE)
-    produkt = models.ForeignKey('Produkt', on_delete=models.CASCADE)
-    mnozstvi = models.IntegerField(default=1)
+    def celkova_cena_kosiku(self):
+        celkova_cena = 0
+        for polozka in self.obsah_kosiku.all():
+            celkova_cena += polozka.celkova_cena()
+        return celkova_cena
 
 
 class Produkt(models.Model):
@@ -56,6 +52,7 @@ class Produkt(models.Model):
     cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     id_kategorie = models.ForeignKey('Kategorie', on_delete=models.SET_NULL, null=True)
     skladove_zasoby = models.IntegerField(null=True)
+    nazev_obrazku = models.CharField(max_length=255, null=False)
     datum_vytvoreni = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -63,6 +60,23 @@ class Produkt(models.Model):
 
     def __str__(self):
         return f"{self.nazev} - {self.cena} Kč"
+
+    def celkova_cena(self):
+        # Spočítejte celkovou cenu na základě atributů produktu
+        celkova_cena = self.cena  # Předpokládáme, že cena je jediným faktorem pro celkovou cenu
+        return celkova_cena
+
+
+class PolozkaKosiku(models.Model):
+    kosik = models.ForeignKey(Kosik, related_name='polozky_kosiku', on_delete=models.CASCADE)
+    produkt = models.ForeignKey(Produkt, related_name='polozky_kosiku', on_delete=models.CASCADE)
+    mnozstvi = models.PositiveIntegerField(default=1)
+
+    def celkova_cena(self):
+        return self.produkt.cena * self.mnozstvi
+
+    class Meta:
+        verbose_name_plural = "položky košíku"
 
 
 class Kategorie(models.Model):
@@ -75,12 +89,12 @@ class Kategorie(models.Model):
 
 class Objednavka(models.Model):
     id_objednavky = models.AutoField(primary_key=True)
-    id_zakaznika = models.ForeignKey(Zakaznik, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     datum_objednavky = models.DateTimeField(auto_now_add=True)
     stav = models.CharField(max_length=255, null=False)
 
     def __str__(self):
-        return f"Objednávka #{self.id_objednavky} od zákazníka {self.id_zakaznika} - Stav: {self.stav}"
+        return f"Objednávka #{self.id_objednavky} od zákazníka {self.user} - Stav: {self.stav}"
 
 
 class Novinka(models.Model):
@@ -104,33 +118,33 @@ class ProduktObjednavka(models.Model):
 
 class Registrace(models.Model):
     id_registrace = models.AutoField(primary_key=True)
-    id_zakaznika = models.ForeignKey(Zakaznik, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     heslo = models.CharField(max_length=255, null=False)
 
     class Meta:
         indexes = [
-            models.Index(fields=['id_zakaznika'])
+            models.Index(fields=['user'])
         ]
 
     def __str__(self):
-        return f"Registrace #{self.id_registrace} pro zákazníka {self.id_zakaznika}"
+        return f"Registrace #{self.id_registrace} pro zákazníka {self.user}"
 
 
 class Recenze(models.Model):
     id_recenze = models.AutoField(primary_key=True)
-    id_zakaznika = models.ForeignKey(Zakaznik, on_delete=models.CASCADE)
-    id_produktu = models.ForeignKey(Produkt, on_delete=models.CASCADE)  # Změňte podle skutečného modelu produktu
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    id_produktu = models.ForeignKey(Produkt, on_delete=models.CASCADE)
     text = models.TextField(null=True)
     datum_recenze = models.DateTimeField(null=False)
 
     class Meta:
         indexes = [
             models.Index(fields=['id_produktu']),
-            models.Index(fields=['id_zakaznika'])
+            models.Index(fields=['user'])
         ]
 
     def __str__(self):
-        return f"Recenze #{self.id_recenze} pro produkt {self.id_produktu} od zákazníka {self.id_zakaznika}"
+        return f"Recenze #{self.id_recenze} pro produkt {self.id_produktu} od zákazníka {self.user}"
 
 
 class Platba(models.Model):
@@ -147,20 +161,6 @@ class Platba(models.Model):
 
     def __str__(self):
         return f"Platba #{self.id_platby} pro objednávku {self.id_objednavky} - {self.suma} Kč"
-
-
-class ObrazekProduktu(models.Model):
-    id_obrazku = models.AutoField(primary_key=True)
-    id_produktu = models.ForeignKey(Produkt, on_delete=models.CASCADE)
-    nazev_obrazku = models.CharField(max_length=255, null=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['id_produktu'])
-        ]
-
-    def __str__(self):
-        return f"Obrazek #{self.id_obrazku} pro produkt {self.id_produktu}"
 
 
 class HistorieObjednavek(models.Model):

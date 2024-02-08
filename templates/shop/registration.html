@@ -1,0 +1,15 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Registrace{% endblock %}
+
+
+{% block main_content %}
+    <div class="registration-form">
+
+        <h2>Registrace</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+        </form>
+    </div>
+{% endblock %}

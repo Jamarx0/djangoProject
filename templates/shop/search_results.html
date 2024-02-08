@@ -1,0 +1,28 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Výsledky vyhledávání{% endblock %}
+
+{% block main_content %}
+    <h2>Výsledky vyhledávání</h2>
+
+    <form method="get">
+        {{ form.as_p }}
+        <button type="submit">Hledat</button>
+    </form>
+
+    {% if results %}
+        <div class="search-results">
+            {% for produkt in results %}
+                <div class="product-box">
+                    <a href="{% url 'product_detail' produkt.pk %}">
+                        <img src="{{ produkt.image.url }}" alt="{{ produkt.nazev }}">
+                        <h3>{{ produkt.nazev }}</h3>
+                        <p>Cena: {{ produkt.cena }} Kč</p>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Žádné výsledky.</p>
+    {% endif %}
+{% endblock %}

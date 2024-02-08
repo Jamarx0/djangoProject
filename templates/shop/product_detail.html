@@ -1,0 +1,24 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ produkt.nazev }}{% endblock %}
+
+{% block main_content %}
+    <ul class="product-detail">
+        <div class="box product-column">
+            <h2>{{ produkt.nazev }}</h2>
+            {% if produkt.nazev_obrazku %}
+                <img src="{{ produkt.nazev_obrazku }}" alt="{{ produkt.nazev }}" style="max-width: 400px; max-height: 400px;">
+            {% endif %}
+            <p>Cena: <span style="font-size: 20px;">{{ produkt.cena }} Kč</span></p>
+        </div>
+        <div class="box product-popis">
+            <p>Popis: {{ produkt.popis }}</p>
+            <p>Počet kusů: {{ produkt.skladove_zasoby }}</p>
+           <form method="post" action="{% url 'pridat_do_kosiku' produkt.id_produktu %}">
+    {% csrf_token %}
+    <input type="hidden" name="produkt_id" value="{{ produkt.id_produktu }}">
+    <button type="submit">Přidat do košíku</button>
+</form>
+        </div>
+    </ul>
+{% endblock %}
