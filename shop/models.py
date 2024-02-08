@@ -1,6 +1,7 @@
+from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.db import models
+
 
 class Kosik(models.Model):
     id_kosiku = models.AutoField(primary_key=True)
@@ -37,11 +38,11 @@ class Kosik(models.Model):
     def __str__(self):
         return f"Kosik {self.id_kosiku} od zákazníka {self.user}"
 
-
-class PolozkaKosiku(models.Model):
-    kosik = models.ForeignKey(Kosik, on_delete=models.CASCADE)
-    produkt = models.ForeignKey('Produkt', on_delete=models.CASCADE)
-    mnozstvi = models.IntegerField(default=1)
+    def celkova_cena_kosiku(self):
+        celkova_cena = 0
+        for polozka in self.obsah_kosiku.all():
+            celkova_cena += polozka.celkova_cena()
+        return celkova_cena
 
 
 class Produkt(models.Model):
@@ -59,6 +60,23 @@ class Produkt(models.Model):
 
     def __str__(self):
         return f"{self.nazev} - {self.cena} Kč"
+
+    def celkova_cena(self):
+        # Spočítejte celkovou cenu na základě atributů produktu
+        celkova_cena = self.cena  # Předpokládáme, že cena je jediným faktorem pro celkovou cenu
+        return celkova_cena
+
+
+class PolozkaKosiku(models.Model):
+    kosik = models.ForeignKey(Kosik, related_name='polozky_kosiku', on_delete=models.CASCADE)
+    produkt = models.ForeignKey(Produkt, related_name='polozky_kosiku', on_delete=models.CASCADE)
+    mnozstvi = models.PositiveIntegerField(default=1)
+
+    def celkova_cena(self):
+        return self.produkt.cena * self.mnozstvi
+
+    class Meta:
+        verbose_name_plural = "položky košíku"
 
 
 class Kategorie(models.Model):
@@ -115,7 +133,7 @@ class Registrace(models.Model):
 class Recenze(models.Model):
     id_recenze = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    id_produktu = models.ForeignKey(Produkt, on_delete=models.CASCADE)  # Změňte podle skutečného modelu produktu
+    id_produktu = models.ForeignKey(Produkt, on_delete=models.CASCADE)
     text = models.TextField(null=True)
     datum_recenze = models.DateTimeField(null=False)
 
@@ -143,7 +161,6 @@ class Platba(models.Model):
 
     def __str__(self):
         return f"Platba #{self.id_platby} pro objednávku {self.id_objednavky} - {self.suma} Kč"
-
 
 
 class HistorieObjednavek(models.Model):

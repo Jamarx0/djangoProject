@@ -2,13 +2,20 @@
 
 {% block title %}Košík{% endblock %}
 
-
-
 {% block main_content %}
-    <h1>Obsah košíku</h1>
-    <ul>
-        {% for polozka in obsah_kosiku %}
-            <li>{{ polozka.produkt.nazev }} - {{ polozka.mnozstvi }} ks - {{ polozka.produkt.cena }} Kč</li>
-        {% endfor %}
-    </ul>
+    <h2>Váš košík</h2>
+    {% if obsah_kosiku %}
+        <ul>
+            {% for polozka in obsah_kosiku %}
+                <li>
+                    <strong>{{ polozka.produkt.nazev }}</strong>
+                    - Množství: {{ polozka.mnozstvi }}
+                    - Celková cena položky: {{ polozka.celkova_cena }} Kč
+                </li>
+            {% endfor %}
+        </ul>
+        <p>Celková cena košíku: {{ kosik.celkova_cena_kosiku }} Kč</p>
+    {% else %}
+        <p>Váš košík je prázdný.</p>
+    {% endif %}
 {% endblock %}

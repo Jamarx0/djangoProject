@@ -14,11 +14,11 @@
         <div class="box product-popis">
             <p>Popis: {{ produkt.popis }}</p>
             <p>Počet kusů: {{ produkt.skladove_zasoby }}</p>
-            <form method="post" action="{% url 'pridat_do_kosiku' produkt.id_produktu %}">
-                {% csrf_token %}
-                <input type="hidden" name="produkt_id" value="{{ produkt.id_produktu }}">
-                <button type="submit">Přidat do košíku</button>
-            </form>
+           <form method="post" action="{% url 'pridat_do_kosiku' produkt.id_produktu %}">
+    {% csrf_token %}
+    <input type="hidden" name="produkt_id" value="{{ produkt.id_produktu }}">
+    <button type="submit">Přidat do košíku</button>
+</form>
         </div>
     </ul>
 {% endblock %}

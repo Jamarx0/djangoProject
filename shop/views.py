@@ -1,10 +1,13 @@
 from django.views.generic import View
-from .models import Kosik, Kategorie, Produkt, Novinka, PolozkaKosiku
+from .models import Kosik, Kategorie, Produkt, Novinka
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import RegistrationForm, SearchForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+
 
 class KosikView(LoginRequiredMixin, View):
     template_name = 'shop/kosik.html'
@@ -12,13 +15,15 @@ class KosikView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         kosik, created = Kosik.objects.get_or_create(user=request.user)
         obsah_kosiku = kosik.obsah_kosiku.all()
-        return render(request, self.template_name, {'obsah_kosiku': obsah_kosiku})
 
-    def add_to_cart(self, produkt):
-        polozka, created = PolozkaKosiku.objects.get_or_create(kosik=self, produkt=produkt)
-        if not created:
-            polozka.mnozstvi += 1
-            polozka.save()
+        for polozka in obsah_kosiku:
+            polozka.cena = polozka.celkova_cena()
+
+        celkova_cena_kosiku = kosik.celkova_cena_kosiku()  # Získání celkové ceny košíku
+
+        return render(request, self.template_name,
+                      {'kosik': kosik, 'obsah_kosiku': obsah_kosiku, 'celkova_cena_kosiku': celkova_cena_kosiku})
+
 
 class RegistrationView(View):
     template_name = 'shop/registration.html'
@@ -35,6 +40,7 @@ class RegistrationView(View):
             return redirect('pokusovec')
         kategorie = Kategorie.objects.all()
         return render(request, self.template_name, {'form': form, 'kategorie': kategorie})
+
 
 class LoginView(View):
     template_name = 'shop/login.html'
@@ -60,9 +66,11 @@ class LoginView(View):
         return render(request, self.template_name,
                       {'form': form, 'kategorie': kategorie, 'error_message': 'Invalid login credentials'})
 
+
 def produkt_detail(request, pk):
     produkt = get_object_or_404(Produkt, pk=pk)
     return render(request, 'shop/product_detail.html', {'produkt': produkt})
+
 
 def products_in_category(request, category_id):
     kategorie = get_object_or_404(Kategorie, id_kategorie=category_id)
@@ -70,16 +78,14 @@ def products_in_category(request, category_id):
     return render(request, 'shop/products_in_category.html',
                   {'aktualni_kategorie': kategorie, 'produkty': produkty})
 
+
+@login_required
 def pridat_do_kosiku(request, produkt_id):
     produkt = get_object_or_404(Produkt, id_produktu=produkt_id)
-    if request.user.is_authenticated:
-        kosik, created = Kosik.objects.get_or_create(user=request.user)
-    else:
-        kosik, created = Kosik.objects.get_or_create(id_kosiku=request.session.get('kosik_id'))
-        if not request.session.get('kosik_id'):
-            request.session['kosik_id'] = kosik.id_kosiku
+    kosik, created = Kosik.objects.get_or_create(user=request.user)
     kosik.add_to_cart(produkt)
-    return redirect('zobraz_kosik')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 def pokusovec(request):
     kategorie = Kategorie.objects.all()
@@ -87,17 +93,11 @@ def pokusovec(request):
     novinky = Novinka.objects.all()[:5]
     return render(request, 'shop/index.html', {'produkty': produkty, 'novinky': novinky, 'kategorie': kategorie})
 
+
 def profile(request):
     user = request.user
     return render(request, 'shop/profile.html', {'user': user, 'other_data': 'Další informace o uživateli'})
 
-class ZobrazKosikView(View):
-    template_name = 'shop/kosik.html'
-
-    def get(self, request, *args, **kwargs):
-        kosik, created = Kosik.objects.get_or_create(user=request.user)
-        obsah_kosiku = kosik.obsah_kosiku.all()
-        return render(request, self.template_name, {'obsah_kosiku': obsah_kosiku})
 
 def search(request):
     form = SearchForm(request.GET)
