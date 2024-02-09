@@ -30,7 +30,7 @@ class Kosik(models.Model):
 
     def add_to_cart(self, produkt):
         # Metoda pro přidání produktu do košíku
-        polozka, created = PolozkaKosiku.objects.get_or_create(kosik=self, produkt=produkt)
+        polozka, created = PolozkaKosiku.objects.get_or_create(id_kosik=self, id_produkt=produkt)
         if not created:
             polozka.mnozstvi += 1
             polozka.save()
@@ -68,12 +68,12 @@ class Produkt(models.Model):
 
 
 class PolozkaKosiku(models.Model):
-    kosik = models.ForeignKey(Kosik, related_name='polozky_kosiku', on_delete=models.CASCADE)
-    produkt = models.ForeignKey(Produkt, related_name='polozky_kosiku', on_delete=models.CASCADE)
+    id_kosik = models.ForeignKey(Kosik, related_name='polozky_kosiku', on_delete=models.CASCADE)
+    id_produkt = models.ForeignKey(Produkt, related_name='polozky_kosiku', on_delete=models.CASCADE)
     mnozstvi = models.PositiveIntegerField(default=1)
 
     def celkova_cena(self):
-        return self.produkt.cena * self.mnozstvi
+        return self.id_produkt.cena * self.mnozstvi
 
     class Meta:
         verbose_name_plural = "položky košíku"

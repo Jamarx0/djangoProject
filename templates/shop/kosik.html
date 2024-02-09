@@ -3,19 +3,35 @@
 {% block title %}Košík{% endblock %}
 
 {% block main_content %}
-    <h2>Váš košík</h2>
+    <h2 style="text-align: center;">Váš košík</h2>
     {% if obsah_kosiku %}
-        <ul>
-            {% for polozka in obsah_kosiku %}
-                <li>
-                    <strong>{{ polozka.produkt.nazev }}</strong>
-                    - Množství: {{ polozka.mnozstvi }}
-                    - Celková cena položky: {{ polozka.celkova_cena }} Kč
-                </li>
-            {% endfor %}
-        </ul>
-        <p>Celková cena košíku: {{ kosik.celkova_cena_kosiku }} Kč</p>
+        <table style="margin: 0 auto;">
+            <thead>
+                <tr>
+                    <th style="padding: 10px;">Název</th>
+                    <th style="padding: 10px;">Obrázek</th>
+                    <th style="padding: 10px;">Počet</th>
+                    <th style="padding: 10px;">Cena za kus</th>
+                    <th style="padding: 10px;">Celková cena</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for polozka in obsah_kosiku %}
+                    <tr>
+                        <td style="padding: 10px; text-align: center;">{{ polozka.produkt.nazev }}</td>
+                        <td style="padding: 10px; text-align: center;"><img src="{{ polozka.obrazek }}" alt="Obrázek produktu" style="width: 50px;"></td>
+                        <td style="padding: 10px; text-align: center;">{{ polozka.mnozstvi }}</td>
+                        <td style="padding: 10px; text-align: center;">{{ polozka.id_produkt.cena }}</td>
+                        <td style="padding: 10px; text-align: center;">{{ polozka.celkova_cena }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p style="text-align: center;">Celková cena košíku: {{ celkova_cena_kosiku }} Kč</p>
+        <div style="text-align: center;">
+            <a style="text-decoration: none; padding: 10px 20px; background-color: #007bff; color: #fff; border-radius: 5px;">Pokračovat k výběru dopravy a platby</a>
+        </div>
     {% else %}
-        <p>Váš košík je prázdný.</p>
+        <p style="text-align: center;">Váš košík je prázdný.</p>
     {% endif %}
 {% endblock %}

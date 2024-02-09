@@ -14,15 +14,19 @@ class KosikView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         kosik, created = Kosik.objects.get_or_create(user=request.user)
-        obsah_kosiku = kosik.obsah_kosiku.all()
+        obsah_kosiku = kosik.polozky_kosiku.all()
 
+        # Aktualizace informací o ceně a obrázku do položek košíku
         for polozka in obsah_kosiku:
+            polozka.produkt = polozka.id_produkt
             polozka.cena = polozka.celkova_cena()
+            polozka.obrazek = polozka.id_produkt.nazev_obrazku  # Aktualizováno
 
-        celkova_cena_kosiku = kosik.celkova_cena_kosiku()  # Získání celkové ceny košíku
+        celkova_cena_kosiku = kosik.celkova_cena_kosiku()
 
         return render(request, self.template_name,
                       {'kosik': kosik, 'obsah_kosiku': obsah_kosiku, 'celkova_cena_kosiku': celkova_cena_kosiku})
+
 
 
 class RegistrationView(View):
