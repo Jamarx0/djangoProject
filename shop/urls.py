@@ -1,7 +1,7 @@
 from django.contrib.auth.views import LoginView
 from django.urls import path
 from . import views
-from .views import pokusovec, RegistrationView, KosikView, search
+from .views import pokusovec, RegistrationView, KosikView, search, vyber_dopravy_a_platby, shrnuti_objednavky, potvrzeni_objednavky
 
 urlpatterns = [
     path('search/', search, name='search'),
@@ -13,4 +13,7 @@ urlpatterns = [
     path('register/', RegistrationView.as_view(), name='registration'),
     path('accounts/profile/', views.profile, name='profile'),
     path('kosik/', KosikView.as_view(), name='kosik'),
+    path("vyber_dopravy_a_platby", vyber_dopravy_a_platby, name="vyber_dopravy_a_platby"),
+    path("shrnuti_objednavky", shrnuti_objednavky, name="shrnuti_objednavky"),
+    path('potvrzeni_objednavky/', potvrzeni_objednavky, name='potvrzeni_objednavky'),
 ]

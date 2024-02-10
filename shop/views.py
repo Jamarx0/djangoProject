@@ -1,5 +1,5 @@
 from django.views.generic import View
-from .models import Kosik, Kategorie, Produkt, Novinka
+from .models import Kosik, Kategorie, Produkt, Novinka, Doprava, Platba, Objednavka, ProduktObjednavka
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
@@ -26,7 +26,6 @@ class KosikView(LoginRequiredMixin, View):
 
         return render(request, self.template_name,
                       {'kosik': kosik, 'obsah_kosiku': obsah_kosiku, 'celkova_cena_kosiku': celkova_cena_kosiku})
-
 
 
 class RegistrationView(View):
@@ -112,3 +111,67 @@ def search(request):
         results = Produkt.objects.filter(nazev__icontains=query)
 
     return render(request, 'shop/search_results.html', {'form': form, 'results': results})
+
+
+def vyber_dopravy_a_platby(request):
+    moznosti_dopravy = Doprava.objects.all()
+    moznosti_platby = Platba.objects.all()
+    return render(request, 'shop/vyber_dopravy_a_platby.html',
+                  {'moznosti_dopravy': moznosti_dopravy, 'moznosti_platby': moznosti_platby})
+
+
+def shrnuti_objednavky(request):
+    # Získání obsahu košíku
+    kosik, _ = Kosik.objects.get_or_create(user=request.user)
+    obsah_kosiku = kosik.polozky_kosiku.all()
+
+    # Získání vybrané dopravy a platby z session
+    vybrana_doprava_id = request.session.get('vybrana_doprava')
+    vybrana_platba_id = request.session.get('vybrana_platba')
+    vybrana_doprava = Doprava.objects.get(id_dopravy=vybrana_doprava_id)
+    vybrana_platba = Platba.objects.get(id_platby=vybrana_platba_id)
+
+    celkova_cena_kosiku = kosik.celkova_cena_kosiku()
+
+    return render(request, 'shop/shrnuti_objednavky.html',
+                  {'obsah_kosiku': obsah_kosiku, 'vybrana_doprava': vybrana_doprava, 'vybrana_platba': vybrana_platba,
+                   'celkova_cena_kosiku': celkova_cena_kosiku})
+
+
+def potvrzeni_objednavky(request):
+    if request.method == 'POST':
+        # Zde zpracujte potvrzení objednávky
+        vybrana_doprava_id = request.session.get('vybrana_doprava')
+        vybrana_doprava = Doprava.objects.get(id_dopravy=vybrana_doprava_id)
+
+        vybrana_platba_id = request.POST.get('platba')
+        # Přidání kódu pro potvrzení objednávky, např. vytvoření instance Objednavka
+        vybrana_platba = Platba.objects.get(id_platby=vybrana_platba_id)
+
+        # Vytvoření instance Objednavka
+        objednavka = Objednavka.objects.create(
+            user=request.user,
+            stav="Vytvorena",
+            vybrana_doprava=vybrana_doprava,
+            vybrana_platba=vybrana_platba
+        )
+
+        # Přiřazení položek z košíku k objednávce
+        for polozka in Kosik.objects.get(user=request.user).polozky_kosiku.all():
+            ProduktObjednavka.objects.create(
+                id_produktu=polozka.id_produkt,
+                id_objednavky=objednavka,
+                mnozstvi=polozka.mnozstvi
+            )
+
+            # Snížení skladových zásob
+            produkt = polozka.id_produkt
+            produkt.skladove_zasoby -= polozka.mnozstvi
+            produkt.save()
+
+        # Odstranění obsahu košíku uživatele
+        kosik = Kosik.objects.get(user=request.user)
+        kosik.delete()
+
+        # Přesměrování na stránku potvrzení objednávky nebo kamkoliv jinam
+        return redirect('pokusovec')

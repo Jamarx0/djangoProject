@@ -1,0 +1,26 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Shrnutí objednávky{% endblock %}
+
+{% block main_content %}
+    <h2>Shrnutí objednávky</h2>
+    <h3>Produkty</h3>
+    <ul>
+    {% for polozka in obsah_kosiku %}
+        <li>{{ polozka.id_produkt.nazev }} - {{ polozka.mnozstvi }} kusů</li>
+    {% endfor %}
+    </ul>
+    <h3>Doprava</h3>
+    <p>{{ vybrana_doprava.metoda_dopravy }} - {{ vybrana_doprava.cena }} Kč</p>
+    <h3>Platba</h3>
+    <p>{{ vybrana_platba.metoda_platby }} - {{ vybrana_platba.cena }} Kč</p>
+    <h3>Celková cena košíku</h3>
+    <p>{{ celkova_cena_kosiku }} Kč</p>
+    <br>
+    <form action="{% url 'potvrzeni_objednavky' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="doprava" value="{{ vybrana_doprava.id_dopravy }}">
+        <input type="hidden" name="platba" value="{{ vybrana_platba.id_platby }}">
+        <input type="submit" value="Potvrdit objednávku">
+    </form>
+{% endblock %}

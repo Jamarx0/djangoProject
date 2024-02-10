@@ -49,7 +49,7 @@ class Produkt(models.Model):
     id_produktu = models.AutoField(primary_key=True)
     nazev = models.CharField(max_length=255, null=False)
     popis = models.TextField(null=True)
-    cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    cena = models.DecimalField(max_digits=100, decimal_places=2, null=False)
     id_kategorie = models.ForeignKey('Kategorie', on_delete=models.SET_NULL, null=True)
     skladove_zasoby = models.IntegerField(null=True)
     nazev_obrazku = models.CharField(max_length=255, null=False)
@@ -92,6 +92,9 @@ class Objednavka(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     datum_objednavky = models.DateTimeField(auto_now_add=True)
     stav = models.CharField(max_length=255, null=False)
+    vybrana_doprava = models.ForeignKey('Doprava', on_delete=models.SET_NULL, null=True)
+    vybrana_platba = models.ForeignKey('Platba', on_delete=models.SET_NULL,
+                                       null=True)  # Přidáno pole pro vybranou platbu
 
     def __str__(self):
         return f"Objednávka #{self.id_objednavky} od zákazníka {self.user} - Stav: {self.stav}"
@@ -149,18 +152,11 @@ class Recenze(models.Model):
 
 class Platba(models.Model):
     id_platby = models.AutoField(primary_key=True)
-    id_objednavky = models.ForeignKey(Objednavka, on_delete=models.CASCADE)
-    suma = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     metoda_platby = models.CharField(max_length=255, null=False)
-    datum_platby = models.DateTimeField(null=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['id_objednavky'])
-        ]
+    cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
 
     def __str__(self):
-        return f"Platba #{self.id_platby} pro objednávku {self.id_objednavky} - {self.suma} Kč"
+        return f"{self.metoda_platby} - {self.cena} Kč"
 
 
 class HistorieObjednavek(models.Model):
@@ -180,15 +176,8 @@ class HistorieObjednavek(models.Model):
 
 class Doprava(models.Model):
     id_dopravy = models.AutoField(primary_key=True)
-    id_objednavky = models.ForeignKey(Objednavka, on_delete=models.CASCADE)
-    cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     metoda_dopravy = models.CharField(max_length=255, null=False)
-    datum_dopravy = models.DateTimeField(null=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['id_objednavky'])
-        ]
+    cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
 
     def __str__(self):
-        return f"Doprava pro objednávku #{self.id_objednavky} - Cena: {self.cena} Kč"
+        return f"{self.metoda_dopravy} - {self.cena} Kč"

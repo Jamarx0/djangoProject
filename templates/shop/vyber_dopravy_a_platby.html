@@ -1,0 +1,30 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Výběr dopravy a platby{% endblock %}
+
+{% block main_content %}
+    <h2>Výběr dopravy a platby</h2>
+    <form action="{% url 'shrnuti_objednavky' %}" method="post">
+        {% csrf_token %}
+        <h3>Vyberte způsob dopravy:</h3>
+        <ul>
+            {% for doprava in moznosti_dopravy %}
+                <li>
+                    <input type="radio" id="doprava{{ doprava.id_dopravy }}" name="doprava" value="{{ doprava.id_dopravy }}">
+                    <label for="doprava{{ doprava.id_dopravy }}">{{ doprava.metoda_dopravy }} - {{ doprava.cena }} Kč</label>
+                </li>
+            {% endfor %}
+        </ul>
+        <h3>Vyberte způsob platby:</h3>
+        <ul>
+            {% for platba in moznosti_platby %}
+                <li>
+                    <input type="radio" id="platba{{ platba.id_platby }}" name="platba" value="{{ platba.id_platby }}">
+                    <label for="platba{{ platba.id_platby }}">{{ platba.metoda_platby }} - {{  platba.cena }} Kč</label>
+                </li>
+            {% endfor %}
+        </ul>
+        <br>
+        <input type="submit" value="Pokračovat k potvrzení objednávky">
+    </form>
+{% endblock %}

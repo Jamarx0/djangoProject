@@ -29,7 +29,7 @@
         </table>
         <p style="text-align: center;">Celková cena košíku: {{ celkova_cena_kosiku }} Kč</p>
         <div style="text-align: center;">
-            <a style="text-decoration: none; padding: 10px 20px; background-color: #007bff; color: #fff; border-radius: 5px;">Pokračovat k výběru dopravy a platby</a>
+            <a href="{% url 'vyber_dopravy_a_platby' %}" style="text-decoration: none; padding: 10px 20px; background-color: #007bff; color: #fff; border-radius: 5px;">Pokračovat k výběru dopravy a platby</a>
         </div>
     {% else %}
         <p style="text-align: center;">Váš košík je prázdný.</p>
