@@ -7,6 +7,7 @@ from .forms import RegistrationForm, SearchForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
+from django.db import transaction
 
 
 class KosikView(LoginRequiredMixin, View):
@@ -114,53 +115,75 @@ def search(request):
 
 
 def vyber_dopravy_a_platby(request):
-    moznosti_dopravy = Doprava.objects.all()
-    moznosti_platby = Platba.objects.all()
-    return render(request, 'shop/vyber_dopravy_a_platby.html',
-                  {'moznosti_dopravy': moznosti_dopravy, 'moznosti_platby': moznosti_platby})
+    if request.method == 'POST':
+        vybrana_doprava_id = request.POST.get('doprava')
+        vybrana_platba_id = request.POST.get('platba')
+
+        print("Vybraná doprava:", vybrana_doprava_id)
+        print("Vybraná platba:", vybrana_platba_id)
+
+        # Uložení vybrané dopravy a platby do session
+        request.session['vybrana_doprava'] = vybrana_doprava_id
+        request.session['vybrana_platba'] = vybrana_platba_id
+
+        # Uložení vybrané dopravy a platby do modelu Kosik
+        kosik, _ = Kosik.objects.get_or_create(user=request.user)
+        kosik.vybrana_doprava_id = vybrana_doprava_id
+        kosik.vybrana_platba_id = vybrana_platba_id
+        kosik.save()
+
+        return redirect('shrnuti_objednavky')
+    else:
+        moznosti_dopravy = Doprava.objects.all()
+        moznosti_platby = Platba.objects.all()
+        return render(request, 'shop/vyber_dopravy_a_platby.html',
+                      {'moznosti_dopravy': moznosti_dopravy, 'moznosti_platby': moznosti_platby})
 
 
 def shrnuti_objednavky(request):
-    # Získání obsahu košíku
     kosik, _ = Kosik.objects.get_or_create(user=request.user)
     obsah_kosiku = kosik.polozky_kosiku.all()
 
-    # Získání vybrané dopravy a platby z session
-    vybrana_doprava_id = request.session.get('vybrana_doprava')
-    vybrana_platba_id = request.session.get('vybrana_platba')
-    vybrana_doprava = Doprava.objects.get(id_dopravy=vybrana_doprava_id)
-    vybrana_platba = Platba.objects.get(id_platby=vybrana_platba_id)
+    # Načtení vybrané dopravy a platby z modelu Kosik
+    vybrana_doprava = kosik.vybrana_doprava
+    vybrana_platba = kosik.vybrana_platba
+
+    # Načtení cen dopravy a platby, pokud jsou dostupné
+    cena_dopravy = vybrana_doprava.cena if vybrana_doprava else 0
+    cena_platby = vybrana_platba.cena if vybrana_platba else 0
 
     celkova_cena_kosiku = kosik.celkova_cena_kosiku()
 
+    # Přičtení cen dopravy a platby k celkové ceně košíku
+    celkova_cena_kosiku += cena_dopravy + cena_platby
+
     return render(request, 'shop/shrnuti_objednavky.html',
                   {'obsah_kosiku': obsah_kosiku, 'vybrana_doprava': vybrana_doprava, 'vybrana_platba': vybrana_platba,
-                   'celkova_cena_kosiku': celkova_cena_kosiku})
+                   'celkova_cena_kosiku': celkova_cena_kosiku, 'cena_dopravy': cena_dopravy,
+                   'cena_platby': cena_platby})
 
 
+@transaction.atomic
 def potvrzeni_objednavky(request):
     if request.method == 'POST':
-        # Zde zpracujte potvrzení objednávky
-        vybrana_doprava_id = request.session.get('vybrana_doprava')
-        vybrana_doprava = Doprava.objects.get(id_dopravy=vybrana_doprava_id)
+        # Získání košíku uživatele
+        kosik, _ = Kosik.objects.get_or_create(user=request.user)
+        vybrana_doprava = kosik.vybrana_doprava
+        vybrana_platba = kosik.vybrana_platba
 
-        vybrana_platba_id = request.POST.get('platba')
-        # Přidání kódu pro potvrzení objednávky, např. vytvoření instance Objednavka
-        vybrana_platba = Platba.objects.get(id_platby=vybrana_platba_id)
-
-        # Vytvoření instance Objednavka
-        objednavka = Objednavka.objects.create(
+        # Vytvoření nové objednávky
+        nova_objednavka = Objednavka.objects.create(
             user=request.user,
             stav="Vytvorena",
             vybrana_doprava=vybrana_doprava,
             vybrana_platba=vybrana_platba
         )
 
-        # Přiřazení položek z košíku k objednávce
-        for polozka in Kosik.objects.get(user=request.user).polozky_kosiku.all():
+        # Přiřazení položek z košíku k objednávce a snížení skladových zásob
+        for polozka in kosik.polozky_kosiku.all():
             ProduktObjednavka.objects.create(
                 id_produktu=polozka.id_produkt,
-                id_objednavky=objednavka,
+                id_objednavky=nova_objednavka,
                 mnozstvi=polozka.mnozstvi
             )
 
@@ -169,9 +192,10 @@ def potvrzeni_objednavky(request):
             produkt.skladove_zasoby -= polozka.mnozstvi
             produkt.save()
 
-        # Odstranění obsahu košíku uživatele
-        kosik = Kosik.objects.get(user=request.user)
+        # Odstranění obsahu košíku
         kosik.delete()
 
-        # Přesměrování na stránku potvrzení objednávky nebo kamkoliv jinam
         return redirect('pokusovec')
+    else:
+        # Zde zobrazte formulář pro potvrzení objednávky
+        pass

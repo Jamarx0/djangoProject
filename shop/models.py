@@ -3,28 +3,68 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 
+class Platba(models.Model):
+    id_platby = models.AutoField(primary_key=True)
+    metoda_platby = models.CharField(max_length=255, null=False)
+    cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+
+    def __str__(self):
+        return f"{self.metoda_platby} - {self.cena} Kč"
+
+
+class Doprava(models.Model):
+    id_dopravy = models.AutoField(primary_key=True)
+    metoda_dopravy = models.CharField(max_length=255, null=False)
+    cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+
+    def __str__(self):
+        return f"{self.metoda_dopravy} - {self.cena} Kč"
+
+
 class Kosik(models.Model):
     id_kosiku = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     obsah_kosiku = models.ManyToManyField('Produkt', through='PolozkaKosiku')
+    vybrana_doprava = models.ForeignKey(Doprava, on_delete=models.SET_NULL, null=True)
+    vybrana_platba = models.ForeignKey(Platba, on_delete=models.SET_NULL, null=True)
+    cena_dopravy = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    cena_platby = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    cena = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+
+    # Metody a další atributy zůstávají nezměněny
 
     def vytvor_objednavku(self):
+        if self.vybrana_doprava is None or self.vybrana_platba is None:
+            raise ValueError("Vybraná doprava a platba musí být nastaveny.")
+
         nova_objednavka = Objednavka.objects.create(
             user=self.user,
             datum_objednavky=timezone.now(),
-            stav="Vytvorena"
+            stav="Vytvorena",
+            vybrana_doprava=self.vybrana_doprava,
+            vybrana_platba=self.vybrana_platba
         )
 
+        celkova_cena = 0
         for polozka in self.obsah_kosiku.all():
             ProduktObjednavka.objects.create(
-                id_produktu=polozka.produkt,
+                id_produktu=polozka.id_produkt,
                 id_objednavky=nova_objednavka,
                 mnozstvi=polozka.mnozstvi
             )
 
             # Snížení skladových zásob
-            polozka.produkt.skladove_zasoby -= polozka.mnozstvi
-            polozka.produkt.save()
+            polozka.id_produkt.skladove_zasoby -= polozka.mnozstvi
+            polozka.id_produkt.save()
+
+            # Přičtení ceny položky k celkové ceně
+            celkova_cena += polozka.celkova_cena()
+
+        # Přičtení ceny dopravy a platby k celkové ceně
+        celkova_cena += self.cena_dopravy + self.cena_platby
+
+        nova_objednavka.celkova_cena = celkova_cena
+        nova_objednavka.save()
 
         self.delete()
 
@@ -41,7 +81,8 @@ class Kosik(models.Model):
     def celkova_cena_kosiku(self):
         celkova_cena = 0
         for polozka in self.obsah_kosiku.all():
-            celkova_cena += polozka.celkova_cena()
+            celkova_cena += polozka.celkova_cena()  # Předpokládáme, že metoda celkova_cena() vrací správnou cenu za
+            # položku
         return celkova_cena
 
 
@@ -63,7 +104,10 @@ class Produkt(models.Model):
 
     def celkova_cena(self):
         # Spočítejte celkovou cenu na základě atributů produktu
-        celkova_cena = self.cena  # Předpokládáme, že cena je jediným faktorem pro celkovou cenu
+        celkova_cena = 0
+        polozky_kosiku = PolozkaKosiku.objects.filter(id_produkt=self)
+        for polozka in polozky_kosiku:
+            celkova_cena += polozka.celkova_cena()
         return celkova_cena
 
 
@@ -92,9 +136,8 @@ class Objednavka(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     datum_objednavky = models.DateTimeField(auto_now_add=True)
     stav = models.CharField(max_length=255, null=False)
-    vybrana_doprava = models.ForeignKey('Doprava', on_delete=models.SET_NULL, null=True)
-    vybrana_platba = models.ForeignKey('Platba', on_delete=models.SET_NULL,
-                                       null=True)  # Přidáno pole pro vybranou platbu
+    vybrana_doprava = models.ForeignKey(Doprava, on_delete=models.SET_NULL, null=True)
+    vybrana_platba = models.ForeignKey(Platba, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f"Objednávka #{self.id_objednavky} od zákazníka {self.user} - Stav: {self.stav}"
@@ -150,15 +193,6 @@ class Recenze(models.Model):
         return f"Recenze #{self.id_recenze} pro produkt {self.id_produktu} od zákazníka {self.user}"
 
 
-class Platba(models.Model):
-    id_platby = models.AutoField(primary_key=True)
-    metoda_platby = models.CharField(max_length=255, null=False)
-    cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
-
-    def __str__(self):
-        return f"{self.metoda_platby} - {self.cena} Kč"
-
-
 class HistorieObjednavek(models.Model):
     id_historie = models.AutoField(primary_key=True)
     id_objednavky = models.ForeignKey(Objednavka, on_delete=models.CASCADE)
@@ -172,12 +206,3 @@ class HistorieObjednavek(models.Model):
 
     def __str__(self):
         return f"Historie objednávky #{self.id_objednavky} - Stav: {self.stav}"
-
-
-class Doprava(models.Model):
-    id_dopravy = models.AutoField(primary_key=True)
-    metoda_dopravy = models.CharField(max_length=255, null=False)
-    cena = models.DecimalField(max_digits=10, decimal_places=2, null=False)
-
-    def __str__(self):
-        return f"{self.metoda_dopravy} - {self.cena} Kč"

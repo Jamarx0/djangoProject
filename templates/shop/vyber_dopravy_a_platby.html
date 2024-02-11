@@ -4,7 +4,7 @@
 
 {% block main_content %}
     <h2>Výběr dopravy a platby</h2>
-    <form action="{% url 'shrnuti_objednavky' %}" method="post">
+    <form action="{% url 'vyber_dopravy_a_platby' %}" method="post">
         {% csrf_token %}
         <h3>Vyberte způsob dopravy:</h3>
         <ul>
