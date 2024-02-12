@@ -27,13 +27,20 @@
             <img src="{% static 'images/logo.png' %}" alt="Logo firmy">
         </a>
     </div>
-    <div class="login-container">
+   <div class="login-container">
+    {% if user.is_authenticated %}
+        <!--suppress HtmlUnknownTarget -->
+        <a href="{% url 'logout' %}" class="button">Odhlásit</a>
+        <!--suppress HtmlUnknownTarget -->
+        <a href="{% url 'historie_objednavek' %}" class="button">Historie objednávek</a>
+    {% else %}
         <!--suppress HtmlUnknownTarget -->
         <a href="{% url 'login' %}" class="button">Přihlásit se</a>
         <!--suppress HtmlUnknownTarget -->
         <a href="{% url 'registration' %}" class="button">Registrovat</a>
-        <a href="{% url 'kosik' %}" class="button kosik-button">Košík</a>
-    </div>
+    {% endif %}
+    <a href="{% url 'kosik' %}" class="button kosik-button">Košík</a>
+</div>
 </div>
 
 <div class="box left-box">

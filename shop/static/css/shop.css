@@ -155,8 +155,8 @@ body {
     transition: box-shadow 0.3s;
     height: 100%;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: column; /* Umožní nám vertikální uspořádání prvků uvnitř */
+    align-items: center; /* Vodorovně zarovná všechny prvky */
 }
 
 .product-image {
@@ -172,10 +172,8 @@ body {
 
 .product-price {
     font-size: 16px; /* Velikost písma pro cenu */
+    margin-top: auto; /* Nastaví spodní okraj na auto, aby byl umístěn hned pod názvem */
 }
-
-
-
 
 .product-info:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);

@@ -142,6 +142,13 @@ class Objednavka(models.Model):
     def __str__(self):
         return f"Objednávka #{self.id_objednavky} od zákazníka {self.user} - Stav: {self.stav}"
 
+    def celkova_cena(self):
+        # Spočítejte celkovou cenu objednávky na základě jejích položek
+        celkova_cena = 0
+        polozky_objednavky = ProduktObjednavka.objects.filter(id_objednavky=self)
+        for polozka in polozky_objednavky:
+            celkova_cena += polozka.id_produktu.cena * polozka.mnozstvi
+        return celkova_cena
 
 class Novinka(models.Model):
     id_novinky = models.AutoField(primary_key=True)

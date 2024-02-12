@@ -16,4 +16,6 @@ urlpatterns = [
     path("vyber_dopravy_a_platby", vyber_dopravy_a_platby, name="vyber_dopravy_a_platby"),
     path("shrnuti_objednavky", shrnuti_objednavky, name="shrnuti_objednavky"),
     path('potvrzeni_objednavky/', potvrzeni_objednavky, name='potvrzeni_objednavky'),
+    path('logout/', views.logout_user, name='logout'),
+    path('historie-objednavek/', views.historie_objednavek, name='historie_objednavek'),
 ]

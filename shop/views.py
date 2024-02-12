@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.db import transaction
+from django.contrib.auth import logout
 
 
 class KosikView(LoginRequiredMixin, View):
@@ -199,3 +200,19 @@ def potvrzeni_objednavky(request):
     else:
         # Zde zobrazte formulář pro potvrzení objednávky
         pass
+
+
+@login_required
+def historie_objednavek(request):
+    objednavky = Objednavka.objects.filter(user=request.user).order_by('-datum_objednavky')
+    for objednavka in objednavky:
+        cena_dopravy = objednavka.vybrana_doprava.cena if objednavka.vybrana_doprava else 0
+        cena_platby = objednavka.vybrana_platba.cena if objednavka.vybrana_platba else 0
+        objednavka.celkova_cena = objednavka.celkova_cena() + cena_dopravy + cena_platby
+    return render(request, 'shop/historie_objednavek.html', {'objednavky': objednavky})
+
+
+@login_required
+def logout_user(request):
+    logout(request)
+    return redirect('pokusovec')  # Přesměrování na domovskou stránku nebo jinou vhodnou stránku po odhlášení

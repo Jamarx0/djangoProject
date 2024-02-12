@@ -1,0 +1,32 @@
+<!-- historie_objednavek.html -->
+{% extends 'shop/base.html' %}
+
+{% block title %}Historie objednávek{% endblock %}
+
+{% block main_content %}
+    <h1>Historie objednávek</h1>
+    {% if objednavky %}
+        <div class="historie-objednavek">
+            {% for objednavka in objednavky %}
+                <div class="objednavka">
+                    <div class="objednavka-header">
+                        <h2>Číslo objednávky: {{ objednavka.id_objednavky }}</h2>
+                        <p>Datum objednávky: {{ objednavka.datum_objednavky|date:"M. d, Y, P" }}</p>
+                        <p>Stav objednávky: {{ objednavka.stav }}</p>
+                        <p>Vybraná doprava: {{ objednavka.vybrana_doprava.metoda_dopravy|default:"Není vybrána" }}</p>
+                        <p>Vybraná platba: {{ objednavka.vybrana_platba.metoda_platby|default:"Není vybrána" }}</p>
+                        <p>Celková cena: {{ objednavka.celkova_cena }} Kč</p>
+                    </div>
+                    <div class="objednavka-produkty">
+                        <h3>Produkty:</h3>
+                        {% for produkt_objednavka in objednavka.produktobjednavka_set.all %}
+                            <p>{{ produkt_objednavka.id_produktu.nazev }} - Množství: {{ produkt_objednavka.mnozstvi }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Žádné objednávky nebyly nalezeny.</p>
+    {% endif %}
+{% endblock %}
