@@ -106,7 +106,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    height: calc(100vh - 130px);
+    height: calc(100vh - 190px);
     width: 240px;
     float: left;
     background-color: #ecf0f1;
@@ -115,6 +115,10 @@ body {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     text-align: center;
     overflow: hidden;
+}
+
+.left-box .button {
+    max-width: 205px; /* Max. šířka tlačítek v left-boxu */
 }
 
 .kategorie-box {
@@ -162,7 +166,7 @@ body {
 .product-image {
     max-width: 300px; /* Maximální šířka obrázku */
     max-height: 300px; /* Maximální výška obrázku */
-    margin-bottom: 10px; /* Odstup mezi obrázkem a cenou */
+    margin-bottom: 5px; /* Odstup mezi obrázkem a cenou */
 }
 
 .product-name {

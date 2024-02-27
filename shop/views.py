@@ -110,7 +110,8 @@ def search(request):
 
     if form.is_valid():
         query = form.cleaned_data['query']
-        results = Produkt.objects.filter(nazev__icontains=query)
+        # Assuming 'image' is the attribute containing the image URL
+        results = Produkt.objects.filter(nazev__icontains=query).values('id_produktu', 'nazev', 'cena', 'nazev_obrazku')
 
     return render(request, 'shop/search_results.html', {'form': form, 'results': results})
 

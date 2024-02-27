@@ -10,19 +10,21 @@
         <button type="submit">Hledat</button>
     </form>
 
-    {% if results %}
-        <div class="search-results">
+  {% if results %}
+    <div class="product-detail">
+        <ul class="product-list">
             {% for produkt in results %}
-                <div class="product-box">
-                    <a href="{% url 'product_detail' produkt.pk %}">
-                        <img src="{{ produkt.image.url }}" alt="{{ produkt.nazev }}">
-                        <h3>{{ produkt.nazev }}</h3>
-                        <p>Cena: {{ produkt.cena }} Kč</p>
-                    </a>
-                </div>
+                <li class="product-item">
+                    <div class="product-info" onclick="window.location='{% url 'product_detail' pk=produkt.id_produktu %}'">
+                        <img class="product-image" src="{{ produkt.nazev_obrazku }}" alt="{{ produkt.nazev }}">
+                        <h3 class="product-name">{{ produkt.nazev }}</h3>
+                        <p class="product-price">Cena: {{ produkt.cena }} Kč</p>
+                    </div>
+                </li>
             {% endfor %}
-        </div>
-    {% else %}
-        <p>Žádné výsledky.</p>
-    {% endif %}
+        </ul>
+    </div>
+{% else %}
+    <p>Žádné výsledky.</p>
+{% endif %}
 {% endblock %}
